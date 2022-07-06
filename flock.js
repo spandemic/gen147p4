@@ -1,20 +1,70 @@
 let flock;
+let store;
 
 function setup() {
   createCanvas(640, 360);
   createP("Drag the mouse to generate new boids.");
 
   flock = new Flock();
+  store = new Store();
+  let step = width / 32;
   // Add an initial set of boids into the system
   for (let i = 0; i < 10; i++) {
     let b = new Boid(width / 2,height / 2);
     flock.addBoid(b);
+  }
+  for (let i = 16; i <= width - 16; i += step) {
+    let t = new Attractor(i, 16, noise() * 1000, noise * 1000);
+    let b = new Attractor(i, height - 32, noise() * 1000, noise() * 1000);
+    store.addStore(t);
+    store.addStore(b);
   }
 }
 
 function draw() {
   background(51);
   flock.run();
+  store.run();
+}
+
+function Store() {
+  this.store = [];
+}
+
+Store.prototype.run = function() {
+  for (let i = 0; i < this.store.length; i++) {
+    this.store[i].run(this.store);  // Passing the entire list of boids to each boid individually
+  }
+}
+
+Store.prototype.addStore = function(b) {
+  this.store.push(b);
+}
+
+function Attractor(x, y, price, clout) {
+  this.position = [x, y];
+  this.price = price;
+  this.clout = clout;
+  this.size = 16;
+  
+}
+
+Attractor.prototype.run = function(store) {
+  this.render();
+}
+
+Attractor.prototype.render = function() {
+  translate(this.position[0], this.position[1]);
+  noStroke();
+  fill(random() * 255);
+  push();
+  beginShape();
+  vertex(-this.size, -this.size);
+  vertex(this.size, -this.size);
+  vertex(this.size, this.size);
+  vertex(-this.size, this.size);
+  endShape(CLOSE);
+  pop();
 }
 
 // Add a new boid into the System
