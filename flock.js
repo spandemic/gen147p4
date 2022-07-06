@@ -6,7 +6,7 @@ function setup() {
   createP("Drag the mouse to generate new boids.");
 
   flock = new Flock();
-  store = new Store();
+  this.store = [];
   // Add an initial set of boids into the system
   for (let i = 0; i < 10; i++) {
     let b = new Boid(width / 2,height / 2);
@@ -22,21 +22,9 @@ function draw() {
   for (let i = 16; i <= width - 16; i += 32) {
     let t = new Attractor(i, 16, noise() * 1000, noise() * 1000);
     let b = new Attractor(i, height - 32, noise() * 1000, noise() * 1000);
+    this.store.push(t);
+    this.store.push(b);
   }
-}
-
-function Store() {
-  this.store = [];
-}
-
-Store.prototype.run = function() {
-  for (let i = 0; i < this.store.length; i++) {
-    this.store[i].run(this.store);  // Passing the entire list of boids to each boid individually
-  }
-}
-
-Store.prototype.addStore = function(b) {
-  this.store.push(b);
 }
 
 function Attractor(x, y, price, clout) {
